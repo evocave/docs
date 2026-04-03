@@ -21,7 +21,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
     title: 'Evocave Docs',
     description:
-        'Official documentation for Evocave — explore guides, references, and more.'
+        'Official documentation for Evocave — explore guides, references, and more.',
+    verification: {
+        google: '-2GKX8-wcGLvy8dHZdo64n33pnpURJjYpkgWOWepZiY'
+    }
 }
 
 export default async function RootLayout({
