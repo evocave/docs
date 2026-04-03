@@ -4,6 +4,8 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import DocsHeader from '@/components/docs/docs-header'
 import DocsFooter from '@/components/docs/docs-footer'
+import DocsReadingProgress from '@/components/docs/docs-reading-progress'
+import GoogleAnalytics from '@/components/google-analytics'
 import { LanguageProvider } from '@/context/language-context'
 
 const geistSans = Geist({
@@ -34,6 +36,7 @@ export default async function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable}`}
         >
             <body className="antialiased" suppressHydrationWarning>
+                <GoogleAnalytics />
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
@@ -41,6 +44,7 @@ export default async function RootLayout({
                     disableTransitionOnChange
                 >
                     <LanguageProvider>
+                        <DocsReadingProgress />
                         <DocsHeader />
                         {children}
                         <DocsFooter />

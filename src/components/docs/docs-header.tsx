@@ -111,7 +111,7 @@ export default function DocsHeader() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 justify-end">
                         <button
                             onClick={() =>
                                 document.dispatchEvent(
