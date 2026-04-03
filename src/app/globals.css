@@ -82,6 +82,8 @@
     --sidebar-accent-foreground: oklch(0.218 0.008 223.8);
     --sidebar-border: oklch(0.925 0.005 214.3);
     --sidebar-ring: oklch(0.723 0.014 214.4);
+    --blockquote-bg: #fff7ed;
+    --blockquote-border: #ec9455;
 }
 
 .dark {
@@ -116,6 +118,8 @@
     --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.56 0.021 213.5);
+    --blockquote-bg: #1a191b;
+    --blockquote-border: #49474e;
 }
 
 @layer base {
@@ -238,11 +242,6 @@
     content: none;
 }
 
-.prose :where(pre):not(:where([class~='not-prose'] *)) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
 .prose :where(table):not(:where([class~='not-prose'] *)) {
     display: block;
     overflow-x: auto;
@@ -250,8 +249,8 @@
 }
 
 .prose :where(blockquote):not(:where([class~='not-prose'] *)) {
-    border-left: 3px solid var(--border);
-    background: var(--card);
+    border-left: 3px solid var(--blockquote-border);
+    background: var(--blockquote-bg);
     border-radius: 0 0.5rem 0.5rem 0;
     padding: 1.5rem;
     margin: 1.5rem 0;
@@ -321,4 +320,13 @@
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 1.5rem;
+}
+
+/* ─── Code blocks ─────────────────────────────────────────────── */
+
+.prose :where(pre):not(:where([class~='not-prose'] *)) {
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.5rem;
 }
