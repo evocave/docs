@@ -13,12 +13,108 @@ import {
 import { notFound } from 'next/navigation'
 import DocsBreadcrumb from '@/components/docs/docs-breadcrumb'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+const BASE_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? 'https://docs.evocave.com'
+const DEFAULT_DESCRIPTION =
+    'Official documentation for Evocave — explore guides, references, and more.'
 
 type Props = {
     params: Promise<{
         topic: string
         slug: string[]
     }>
+}
+
+// ─── Generate Metadata ────────────────────────────────────────────────────────
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { topic, slug = [] } = await params
+    const navTree = await getDocNavTree()
+    const activeTopic = navTree.find((t) => t.slug === topic)
+
+    if (!activeTopic) return { title: 'Evocave Docs' }
+
+    // Topic page
+    if (slug.length === 0) {
+        return {
+            title: `${activeTopic.label} — Evocave Docs`,
+            description: activeTopic.description || DEFAULT_DESCRIPTION,
+            openGraph: {
+                title: `${activeTopic.label} — Evocave Docs`,
+                description: activeTopic.description || DEFAULT_DESCRIPTION,
+                url: `${BASE_URL}/${topic}`,
+                siteName: 'Evocave Docs',
+                type: 'website'
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title: `${activeTopic.label} — Evocave Docs`,
+                description: activeTopic.description || DEFAULT_DESCRIPTION
+            }
+        }
+    }
+
+    const [sectionSlug, industrySlug, docSlug] = slug
+    const activeSection = activeTopic.sections.find(
+        (s) => s.slug === sectionSlug
+    )
+    if (!activeSection) return { title: 'Evocave Docs' }
+
+    // Section page
+    if (slug.length === 1) {
+        return {
+            title: `${activeSection.label} — ${activeTopic.label} — Evocave Docs`,
+            description: activeSection.description || DEFAULT_DESCRIPTION,
+            openGraph: {
+                title: `${activeSection.label} — Evocave Docs`,
+                description: activeSection.description || DEFAULT_DESCRIPTION,
+                url: `${BASE_URL}/${topic}/${sectionSlug}`,
+                siteName: 'Evocave Docs',
+                type: 'website'
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title: `${activeSection.label} — Evocave Docs`,
+                description: activeSection.description || DEFAULT_DESCRIPTION
+            }
+        }
+    }
+
+    // Doc / industry page
+    try {
+        const post =
+            slug.length === 2 && activeSection.type === 'flat'
+                ? await fetchNavDocByTopicAndSlug(activeTopic.id, industrySlug)
+                : slug.length === 3
+                  ? await fetchNavDocByTopicAndSlug(activeTopic.id, docSlug)
+                  : null
+
+        if (post) {
+            const title = post.title.rendered.replace(/<[^>]+>/g, '')
+            const description = post.acf?.description || DEFAULT_DESCRIPTION
+            return {
+                title: `${title} — ${activeTopic.label} — Evocave Docs`,
+                description,
+                openGraph: {
+                    title: `${title} — Evocave Docs`,
+                    description,
+                    url: `${BASE_URL}/${topic}/${slug.join('/')}`,
+                    siteName: 'Evocave Docs',
+                    type: 'article'
+                },
+                twitter: {
+                    card: 'summary_large_image',
+                    title: `${title} — Evocave Docs`,
+                    description
+                }
+            }
+        }
+    } catch {
+        // fallback
+    }
+
+    return { title: 'Evocave Docs' }
 }
 
 // ─── Reading Time Helper ──────────────────────────────────────────────────────
@@ -129,7 +225,7 @@ async function DocArticle({
                     <DocsBreadcrumb items={breadcrumb} />
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
-                            <h1 className="text-4xl font-semibold mt-2 mb-3">
+                            <h1 className="text-3xl lg:text-5xl font-bold mt-2 mb-3">
                                 {post.title.rendered}
                             </h1>
                             <PageMetaBar
@@ -139,7 +235,7 @@ async function DocArticle({
                             />
                         </div>
                         {description && (
-                            <p className="text-base text-foreground leading-relaxed mb-5">
+                            <p className="text-base text-foreground mb-5">
                                 {description}
                             </p>
                         )}
@@ -207,7 +303,7 @@ function OverviewPage({
                             />
                         )}
                         {description && (
-                            <p className="text-base text-foreground leading-relaxed mb-5">
+                            <p className="text-sm text-muted-foreground mb-5">
                                 {description}
                             </p>
                         )}
